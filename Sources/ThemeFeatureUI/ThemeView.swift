@@ -1,6 +1,6 @@
 //
 //  ThemeView.swift
-//  Swifty Forecast
+//  ThemeFeature
 //
 //  Created by Pawel Milek on 1/2/24.
 //  Copyright © 2024 Pawel Milek. All rights reserved.
@@ -131,31 +131,4 @@ public struct ThemeView: View {
         .padding(.horizontal, 40)
         .padding(.vertical, 10)
     }
-}
-
-#Preview(traits: .sizeThatFitsLayout) {
-    ThemeView(
-        viewModel: ThemeViewModel(
-            repository: FakeThemeRepository(),
-            notification: PreviewThemeNotificationChange(),
-            analytics: PreviewAnalyticsTheme()
-        ),
-        
-        textColor: .black,
-        darkScheme: .red,
-        lightScheme: .yellow
-    )
-}
-
-struct FakeThemeRepository: ThemeRepository {
-    func save(theme: Theme) { }
-    func saved() -> Theme { .dark }
-}
-
-struct PreviewThemeNotificationChange: ThemeChangeNotifiable {
-    func notify(newTheme: String) { }
-}
-
-struct PreviewAnalyticsTheme: AnalyticsThemeSendable {
-    func send(name: String, metadata: [String : Any]) { }
 }

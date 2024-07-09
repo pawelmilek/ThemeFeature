@@ -1,6 +1,6 @@
 //
 //  ThemeViewModel.swift
-//  Swifty Forecast
+//  ThemeFeature
 //
 //  Created by Pawel Milek on 6/28/24.
 //  Copyright © 2024 Pawel Milek. All rights reserved.
@@ -20,25 +20,25 @@ public final class ThemeViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     let height = CGFloat(410)
 
-    private let repository: ThemeRepository
+    private let service: ThemeService
     private let notification: ThemeChangeNotifiable
     private let analytics: AnalyticsThemeSendable
 
     // TODO: Composite design pattern to reduce number of constructor injection
     public init(
-        repository: ThemeRepository,
+        service: ThemeService,
         notification: ThemeChangeNotifiable,
         analytics: AnalyticsThemeSendable
     ) {
-        self.repository = repository
+        self.service = service
         self.notification = notification
         self.analytics = analytics
-        self.selectedTheme = repository.saved()
+        self.selectedTheme = service.saved()
 
         $selectedTheme
             .print()
             .sink { [weak self] selectedTheme in
-                self?.repository.save(theme: selectedTheme)
+                self?.service.save(theme: selectedTheme)
                 self?.notification.notify(newTheme: selectedTheme.rawValue)
             }
             .store(in: &cancellables)
