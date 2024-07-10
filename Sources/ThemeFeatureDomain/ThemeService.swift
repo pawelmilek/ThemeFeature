@@ -9,6 +9,6 @@
 import Foundation
 
 public protocol ThemeService {
-    func save(theme: Theme)
-    func saved() -> Theme
+    func save(theme: ThemeState)
+    func saved() -> ThemeState
 }

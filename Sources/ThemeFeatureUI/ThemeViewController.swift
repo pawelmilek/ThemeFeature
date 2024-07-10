@@ -12,20 +12,17 @@ import SwiftUI
 public final class ThemeViewController: UIViewController {
     let viewModel: ThemeViewModel
     let textColor: Color
-    let darkScheme: Color
-    let lightScheme: Color
+    let scheme: (dark: Color, light: Color)
     private var hostingViewController: UIHostingController<ThemeView>!
 
     public init(
         viewModel: ThemeViewModel,
         textColor: Color,
-        darkScheme: Color,
-        lightScheme: Color
+        scheme: (dark: Color, light: Color)
     ) {
         self.viewModel = viewModel
         self.textColor = textColor
-        self.darkScheme = darkScheme
-        self.lightScheme = lightScheme
+        self.scheme = scheme
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -42,8 +39,7 @@ public final class ThemeViewController: UIViewController {
         let appearanceView = ThemeView(
             viewModel: viewModel,
             textColor: textColor,
-            darkScheme: darkScheme,
-            lightScheme: lightScheme
+            scheme: scheme
         )
         hostingViewController = UIHostingController(rootView: appearanceView)
         hostingViewController.view.backgroundColor = .clear

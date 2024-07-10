@@ -11,8 +11,8 @@ import Combine
 import ThemeFeatureDomain
 
 public final class ThemeViewModel: ObservableObject {
-    @Published var selectedTheme: Theme
-    @Published private(set) var themes = Theme.allCases
+    @Published var selectedTheme: ThemeState
+    @Published private(set) var themes = ThemeState.allCases
     @Published private(set) var title = "Appearance"
     @Published private(set) var subtitle = "Choose a day or night.\nCustomize your interface."
     @Published private(set) var pickerTitle = "Theme Settings"
@@ -24,7 +24,6 @@ public final class ThemeViewModel: ObservableObject {
     private let notification: ThemeChangeNotifiable
     private let analytics: AnalyticsThemeSendable
 
-    // TODO: Composite design pattern to reduce number of constructor injection
     public init(
         service: ThemeService,
         notification: ThemeChangeNotifiable,
@@ -40,18 +39,44 @@ public final class ThemeViewModel: ObservableObject {
             .sink { [weak self] selectedTheme in
                 self?.service.save(theme: selectedTheme)
                 self?.notification.notify(newTheme: selectedTheme.rawValue)
+                self?.sendColorSchemeSwitched(selectedTheme.rawValue)
             }
             .store(in: &cancellables)
     }
 
-    func setLightCircleOffset() {
+    func onSelectedThemeChanged(_ systemSchemeName: String) {
+        service.save(theme: selectedTheme)
+        notification.notify(newTheme: selectedTheme.rawValue)
+        sendColorSchemeSwitched(selectedTheme.rawValue)
+        setupCircleOffset(by: systemSchemeName)
+    }
+
+    private func setupCircleOffset(by systemSchemeName: String) {
+        switch selectedTheme {
+        case .system:
+            if let mappedTheme = ThemeState(rawValue: systemSchemeName),
+               mappedTheme == .dark {
+                setDarkCircleOffset()
+            } else {
+                setLightCircleOffset()
+            }
+
+        case .dark:
+            setDarkCircleOffset()
+
+        case .light:
+            setLightCircleOffset()
+        }
+    }
+
+    private func setLightCircleOffset() {
         circleOffset = CGSize(
             width: 150,
             height: -150
         )
     }
 
-    func setDarkCircleOffset() {
+    private func setDarkCircleOffset() {
         circleOffset = CGSize(
             width: 30,
             height: -25
@@ -66,8 +91,8 @@ public final class ThemeViewModel: ObservableObject {
         )
     }
 
-    func sendColorSchemeSwitched(_ name: String) {
-        let event = ThemeAnalyticsEvent.colorSchemeSwitched(scheme: name)
+    private func sendColorSchemeSwitched(_ name: String) {
+        let event = ThemeAnalyticsEvent.themeSwitched(theme: name)
         analytics.send(
             name: event.name,
             metadata: event.metadata

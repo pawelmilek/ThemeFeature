@@ -9,22 +9,22 @@
 import Foundation
 
 public enum ThemeAnalyticsEvent {
-    case colorSchemeSwitched(scheme: String)
+    case themeSwitched(theme: String)
     case screenViewed(className: String)
 
     public var name: String {
         switch self {
-        case .colorSchemeSwitched:
-            "color_scheme_switched"
+        case .themeSwitched:
+            "theme_switched"
         case .screenViewed:
             "screen_view"
         }
     }
     public var metadata: [String: Any] {
         switch self {
-        case .colorSchemeSwitched(let scheme):
+        case .themeSwitched(let theme):
             [
-                "color_scheme": scheme
+                "theme_name": theme
             ]
 
         case .screenViewed(let className):

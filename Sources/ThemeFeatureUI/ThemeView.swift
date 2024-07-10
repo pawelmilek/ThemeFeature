@@ -13,22 +13,19 @@ import ThemeFeatureDomain
 public struct ThemeView: View {
     @Environment(\.colorScheme) private var colorScheme
     @ObservedObject public var viewModel: ThemeViewModel
-    @State private var gradientColor: AnyGradient?
+    @State private var gradientColor = Color.clear.gradient
 
     public let textColor: Color
-    public let darkScheme: Color
-    public let lightScheme: Color
+    public let scheme: (dark: Color, light: Color)
 
     public init(
         viewModel: ThemeViewModel,
         textColor: Color,
-        darkScheme: Color,
-        lightScheme: Color
+        scheme: (dark: Color, light: Color)
     ) {
         self.viewModel = viewModel
         self.textColor = textColor
-        self.darkScheme = darkScheme
-        self.lightScheme = lightScheme
+        self.scheme = scheme
     }
 
     public var body: some View {
@@ -43,55 +40,40 @@ public struct ThemeView: View {
         .padding(.horizontal, 15)
         .environment(\.colorScheme, colorScheme)
         .onChange(of: colorScheme, initial: true) {
+            viewModel.onSelectedThemeChanged("\(colorScheme)")
             setupGradient()
-            setupCircleOffset()
+
+            debugPrint("onChange: colorScheme \(colorScheme)")
         }
         .onChange(of: viewModel.selectedTheme) {
+            viewModel.onSelectedThemeChanged("\(colorScheme)")
             setupGradient()
-            setupCircleOffset()
-            viewModel.sendColorSchemeSwitched(String(describing: colorScheme))
+
+            debugPrint("colorScheme \(colorScheme)")
         }
         .onAppear {
-            setupGradient()
-            setupCircleOffset()
             viewModel.sendScreenViewed(className: "\(type(of: self))")
-        }
-        .animation(.bouncy, value: viewModel.circleOffset)
-    }
-
-    private func setupCircleOffset() {
-        switch viewModel.selectedTheme {
-        case .systemDefault:
-            colorScheme == .dark
-            ? viewModel.setDarkCircleOffset()
-            : viewModel.setLightCircleOffset()
-
-        case .light:
-            viewModel.setLightCircleOffset()
-
-        case .dark:
-            viewModel.setDarkCircleOffset()
         }
     }
 
     private func setupGradient() {
         gradientColor = switch viewModel.selectedTheme {
-        case .systemDefault:
+        case .system:
             colorScheme == .dark 
-            ? darkScheme.gradient
-            : lightScheme.gradient
+            ? scheme.dark.gradient
+            : scheme.light.gradient
 
         case .light:
-            lightScheme.gradient
+            scheme.light.gradient
 
         case .dark:
-            darkScheme.gradient
+            scheme.dark.gradient
         }
     }
 
     private var circleView: some View {
         Circle()
-            .fill(gradientColor ?? darkScheme.gradient)
+            .fill(gradientColor)
             .frame(maxWidth: 150, maxHeight: 150)
             .mask {
                 Rectangle()
@@ -102,6 +84,7 @@ public struct ThemeView: View {
                                 y: viewModel.circleOffset.height
                             )
                             .blendMode(.destinationOut)
+                            .animation(.bouncy, value: viewModel.circleOffset)
                     }
             }
     }
@@ -123,7 +106,7 @@ public struct ThemeView: View {
     private var themePickerView: some View {
         Picker(viewModel.pickerTitle, selection: $viewModel.selectedTheme) {
             ForEach(viewModel.themes) { item in
-                Text(item.rawValue)
+                Text(item.description)
                     .foregroundStyle(textColor)
             }
         }
