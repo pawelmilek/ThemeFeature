@@ -21,9 +21,9 @@ public enum ThemeState: String, CaseIterable, Identifiable, Codable, CustomStrin
         case .system:
             "Default"
         case .dark:
-            "Light"
-        case .light:
             "Dark"
+        case .light:
+            "Light"
         }
     }
 }

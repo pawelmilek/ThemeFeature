@@ -39,7 +39,7 @@ public final class ThemeViewModel: ObservableObject {
             .sink { [weak self] selectedTheme in
                 self?.service.save(theme: selectedTheme)
                 self?.notification.notify(newTheme: selectedTheme.rawValue)
-                self?.sendColorSchemeSwitched(selectedTheme.rawValue)
+                self?.sendThemeSwitchedAnalyticsEvent(selectedTheme.rawValue)
             }
             .store(in: &cancellables)
     }
@@ -47,7 +47,7 @@ public final class ThemeViewModel: ObservableObject {
     func onSelectedThemeChanged(_ systemSchemeName: String) {
         service.save(theme: selectedTheme)
         notification.notify(newTheme: selectedTheme.rawValue)
-        sendColorSchemeSwitched(selectedTheme.rawValue)
+        sendThemeSwitchedAnalyticsEvent(selectedTheme.rawValue)
         setupCircleOffset(by: systemSchemeName)
     }
 
@@ -83,7 +83,7 @@ public final class ThemeViewModel: ObservableObject {
         )
     }
 
-    func sendScreenViewed(className: String) {
+    func sendScreenViewedAnalyticsEvent(className: String) {
         let event = ThemeAnalyticsEvent.screenViewed(className: className)
         analytics.send(
             name: event.name,
@@ -91,7 +91,7 @@ public final class ThemeViewModel: ObservableObject {
         )
     }
 
-    private func sendColorSchemeSwitched(_ name: String) {
+    private func sendThemeSwitchedAnalyticsEvent(_ name: String) {
         let event = ThemeAnalyticsEvent.themeSwitched(theme: name)
         analytics.send(
             name: event.name,

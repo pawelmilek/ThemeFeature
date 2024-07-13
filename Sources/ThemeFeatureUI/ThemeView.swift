@@ -52,7 +52,7 @@ public struct ThemeView: View {
             debugPrint("colorScheme \(colorScheme)")
         }
         .onAppear {
-            viewModel.sendScreenViewed(className: "\(type(of: self))")
+            viewModel.sendScreenViewedAnalyticsEvent(className: "\(type(of: self))")
         }
     }
 
