@@ -1,5 +1,5 @@
 //
-//  ThemeChangeNotifiable.swift
+//  ThemeStateChangeNotifiable.swift
 //  ThemeFeature
 //
 //  Created by Pawel Milek on 7/2/24.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol ThemeChangeNotifiable {
+public protocol ThemeStateChangeNotifiable {
     func notify(newTheme: String)
 }

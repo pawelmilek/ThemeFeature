@@ -21,12 +21,12 @@ public final class ThemeViewModel: ObservableObject {
     let height = CGFloat(410)
 
     private let service: ThemeService
-    private let notification: ThemeChangeNotifiable
+    private let notification: ThemeStateChangeNotifiable
     private let analytics: AnalyticsThemeSendable
 
     public init(
         service: ThemeService,
-        notification: ThemeChangeNotifiable,
+        notification: ThemeStateChangeNotifiable,
         analytics: AnalyticsThemeSendable
     ) {
         self.service = service
