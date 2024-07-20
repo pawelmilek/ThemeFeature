@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ThemeFeatureDomain
 
 public protocol ThemeService {
     func save(theme: ThemeState)

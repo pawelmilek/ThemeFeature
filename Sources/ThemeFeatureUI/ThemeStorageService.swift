@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ThemeFeatureDomain
 
 public struct ThemeStorageService: ThemeService {
     private let repository: Repository
