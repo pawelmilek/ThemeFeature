@@ -7,7 +7,8 @@
 //
 
 import Foundation
+import ThemeFeatureDomain
 
 public protocol ThemeStateChangeNotifiable {
-    func notify(newTheme: String)
+    func notify(themeState: ThemeState)
 }

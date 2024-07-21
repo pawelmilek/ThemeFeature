@@ -7,7 +7,7 @@
 //
 // swiftlint:disable:identifier_name
 
-import UIKit
+import Foundation
 
 public enum ThemeState: String, CaseIterable, Identifiable, Codable, CustomStringConvertible {
     case system

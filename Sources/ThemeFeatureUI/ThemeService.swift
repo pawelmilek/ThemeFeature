@@ -9,7 +9,18 @@
 import Foundation
 import ThemeFeatureDomain
 
-public protocol ThemeService {
-    func save(theme: ThemeState)
-    func saved() -> ThemeState
+public struct ThemeService: Service {
+    private let repository: Repository
+
+    public init(repository: Repository) {
+        self.repository = repository
+    }
+
+    public func save(theme: ThemeState) async throws {
+        try await repository.save(theme)
+    }
+
+    public func saved() async throws -> ThemeState {
+        try await repository.saved()
+    }
 }

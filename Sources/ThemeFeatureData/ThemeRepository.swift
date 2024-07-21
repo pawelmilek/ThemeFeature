@@ -11,16 +11,26 @@ import ThemeFeatureDomain
 
 public struct ThemeRepository: Repository {
     private let dataSource: ThemeDataSource
+    private let decoder: JSONDecoder
+    private let encoder: JSONEncoder
 
-    public init(dataSource: ThemeDataSource) {
+    public init(
+        dataSource: ThemeDataSource,
+        decoder: JSONDecoder,
+        encoder: JSONEncoder
+    ) {
         self.dataSource = dataSource
+        self.decoder = decoder
+        self.encoder = encoder
     }
 
-    public func save(_ theme: Data) {
-        dataSource.save(theme)
+    public func save(_ theme: ThemeState) async throws {
+        let encoded = try encoder.encode(theme)
+        try await dataSource.save(encoded)
     }
 
-    public func saved() -> Data? {
-        dataSource.saved()
+    public func saved() async throws -> ThemeState {
+        guard let data = try await dataSource.saved() else { return .system }
+        return try decoder.decode(ThemeState.self, from: data)
     }
 }

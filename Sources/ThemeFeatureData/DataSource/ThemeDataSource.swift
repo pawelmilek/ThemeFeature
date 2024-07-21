@@ -9,6 +9,6 @@
 import Foundation
 
 public protocol ThemeDataSource {
-    func save(_ theme: Data)
-    func saved() -> Data?
+    func save(_ theme: Data) async throws
+    func saved() async throws -> Data?
 }

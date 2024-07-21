@@ -10,8 +10,9 @@ import Foundation
 import Combine
 import ThemeFeatureDomain
 
+@MainActor
 public final class ThemeViewModel: ObservableObject {
-    @Published var selectedTheme: ThemeState
+    @Published var selectedTheme = ThemeState.system
     @Published private(set) var themes = ThemeState.allCases
     @Published private(set) var title = "Appearance"
     @Published private(set) var subtitle = "Choose a day or night.\nCustomize your interface."
@@ -20,35 +21,61 @@ public final class ThemeViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     let height = CGFloat(410)
 
-    private let service: ThemeService
+    private let service: Service
     private let notification: ThemeStateChangeNotifiable
     private let analytics: AnalyticsThemeSendable
 
     public init(
-        service: ThemeService,
+        service: Service,
         notification: ThemeStateChangeNotifiable,
         analytics: AnalyticsThemeSendable
     ) {
         self.service = service
         self.notification = notification
         self.analytics = analytics
-        self.selectedTheme = service.saved()
+        subscribePublishers()
+        loadStoredThemeState()
+    }
 
+    private func subscribePublishers() {
         $selectedTheme
             .print()
+            .dropFirst()
             .sink { [weak self] selectedTheme in
-                self?.service.save(theme: selectedTheme)
-                self?.notification.notify(newTheme: selectedTheme.rawValue)
-                self?.sendThemeSwitchedAnalyticsEvent(selectedTheme.rawValue)
+                self?.save(selectedTheme: selectedTheme)
             }
             .store(in: &cancellables)
     }
 
-    func onSelectedThemeChanged(_ systemSchemeName: String) {
-        service.save(theme: selectedTheme)
-        notification.notify(newTheme: selectedTheme.rawValue)
-        sendThemeSwitchedAnalyticsEvent(selectedTheme.rawValue)
+    private func loadStoredThemeState() {
+        Task {
+            do {
+                self.selectedTheme = try await service.saved()
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+        }
+    }
+
+    func themeStateChanged(_ systemSchemeName: String) {
+        save(selectedTheme: selectedTheme)
         setupCircleOffset(by: systemSchemeName)
+    }
+
+    private func save(selectedTheme: ThemeState) {
+        saveSelectedTheme(selectedTheme)
+        notification.notify(themeState: selectedTheme)
+        sendThemeSwitchedAnalyticsEvent(selectedTheme)
+    }
+
+    private func saveSelectedTheme(_ selectedTheme: ThemeState) {
+        Task {
+            do {
+                try await service.save(theme: selectedTheme)
+            } catch {
+                fatalError(error.localizedDescription)
+            }
+        }
     }
 
     private func setupCircleOffset(by systemSchemeName: String) {
@@ -91,8 +118,8 @@ public final class ThemeViewModel: ObservableObject {
         )
     }
 
-    private func sendThemeSwitchedAnalyticsEvent(_ name: String) {
-        let event = ThemeAnalyticsEvent.themeSwitched(theme: name)
+    private func sendThemeSwitchedAnalyticsEvent(_ themeState: ThemeState) {
+        let event = ThemeAnalyticsEvent.themeSwitched(theme: themeState.rawValue)
         analytics.send(
             name: event.name,
             metadata: event.metadata

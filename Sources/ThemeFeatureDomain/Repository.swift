@@ -9,6 +9,6 @@
 import Foundation
 
 public protocol Repository {
-    func save(_ theme: Data)
-    func saved() -> Data?
+    func save(_ theme: ThemeState) async throws
+    func saved() async throws -> ThemeState
 }

@@ -8,7 +8,6 @@
 // swiftlint:disable switch_case_alignment
 
 import SwiftUI
-import ThemeFeatureDomain
 
 public struct ThemeView: View {
     @Environment(\.colorScheme) private var colorScheme
@@ -40,28 +39,27 @@ public struct ThemeView: View {
         .padding(.horizontal, 15)
         .environment(\.colorScheme, colorScheme)
         .onChange(of: colorScheme, initial: true) {
-            viewModel.onSelectedThemeChanged("\(colorScheme)")
-            setupGradient()
-
-            debugPrint("onChange: colorScheme \(colorScheme)")
+            onThemeStateChanged()
         }
         .onChange(of: viewModel.selectedTheme) {
-            viewModel.onSelectedThemeChanged("\(colorScheme)")
-            setupGradient()
-
-            debugPrint("colorScheme \(colorScheme)")
+            onThemeStateChanged()
         }
         .onAppear {
-            viewModel.sendScreenViewedAnalyticsEvent(className: "\(type(of: self))")
+            viewModel.sendScreenViewedAnalyticsEvent(
+                className: "\(type(of: self))"
+            )
         }
+    }
+
+    private func onThemeStateChanged() {
+        viewModel.themeStateChanged("\(colorScheme)")
+        setupGradient()
     }
 
     private func setupGradient() {
         gradientColor = switch viewModel.selectedTheme {
         case .system:
-            colorScheme == .dark 
-            ? scheme.dark.gradient
-            : scheme.light.gradient
+            colorScheme == .dark  ? scheme.dark.gradient : scheme.light.gradient
 
         case .light:
             scheme.light.gradient
