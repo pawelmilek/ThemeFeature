@@ -9,7 +9,7 @@
 
 import Foundation
 
-public enum ThemeState: String, CaseIterable, Identifiable, Codable, CustomStringConvertible {
+public enum ThemeState: String, CaseIterable, Identifiable, CustomStringConvertible {
     case system
     case light
     case dark
