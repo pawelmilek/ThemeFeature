@@ -10,9 +10,9 @@
 import Foundation
 
 public enum ThemeState: String, CaseIterable, Identifiable, CustomStringConvertible {
-    case system
-    case light
-    case dark
+    case system = "default"
+    case light = "light"
+    case dark = "dark"
 
     public var id: Self { self }
 
