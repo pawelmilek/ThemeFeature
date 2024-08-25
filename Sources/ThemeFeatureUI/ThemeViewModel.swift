@@ -21,16 +21,16 @@ public final class ThemeViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     let height = CGFloat(410)
 
-    private let service: Service
+    private let repository: Repository
     private let notification: ThemeStateChangeNotifiable
     private let analytics: AnalyticsThemeSendable
 
     public init(
-        service: Service,
+        repository: Repository,
         notification: ThemeStateChangeNotifiable,
         analytics: AnalyticsThemeSendable
     ) {
-        self.service = service
+        self.repository = repository
         self.notification = notification
         self.analytics = analytics
         subscribePublishers()
@@ -50,7 +50,7 @@ public final class ThemeViewModel: ObservableObject {
     private func loadStoredThemeState() {
         Task {
             do {
-                self.selectedTheme = try await service.saved()
+                self.selectedTheme = try await repository.saved()
             } catch {
                 fatalError(error.localizedDescription)
             }
@@ -71,7 +71,7 @@ public final class ThemeViewModel: ObservableObject {
     private func saveSelectedTheme(_ selectedTheme: ThemeState) {
         Task {
             do {
-                try await service.save(theme: selectedTheme)
+                try await repository.save(selectedTheme)
             } catch {
                 fatalError(error.localizedDescription)
             }
